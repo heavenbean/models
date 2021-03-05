@@ -638,6 +638,10 @@ def train_loop(
         logged_step = global_step.value()
 
         last_step_time = time.time()
+        
+        # HoangDN - log the last 10 steps
+        loggingvalues.append('{:.3f}'.format(loss))
+
         for _ in range(global_step.value(), train_steps,
                        num_steps_per_iteration):
 
@@ -652,6 +656,11 @@ def train_loop(
 
           steps_per_sec_list.append(steps_per_sec)
 
+          # send last 10 steps data to main service, then reset the last-10-step variable
+          if global_step.value() % 10 == 0:
+            tf.logging.info(", ".join(loggingvalues))
+            loggingvalues = []
+            
           if global_step.value() - logged_step >= 100:
             tf.logging.info(
                 'Step {} per-step time {:.3f}s loss={:.3f}'.format(
